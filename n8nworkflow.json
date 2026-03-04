@@ -1,0 +1,1091 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -768,
+        368
+      ],
+      "id": "2e117740-1950-4592-ac4d-bc1e70d2590c",
+      "name": "Webhook",
+      "webhookId": "2186bf8c-84cd-49f5-a745-1bf99379cda3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6e7d67f7-286e-466f-a57d-4fd2972b1d1c",
+              "leftValue": "=={{ $json.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "id": "825f5767-47f4-4790-a80b-7bcf2e2a3497",
+      "name": "Session Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1136,
+        352
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "userPhone",
+              "value": "={{ $('Extract Message Data').item.json.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "state",
+              "value": "START",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "language",
+              "value": null,
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "lastMessage",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "id-5",
+              "name": "userText",
+              "value": "={{ $('Extract Message Data').item.json.message_text }}",
+              "type": "string"
+            },
+            {
+              "id": "id-6",
+              "name": "messageType",
+              "value": "={{ $('Extract Message Data').item.json.message_type }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "072b9ec8-25e9-4191-95ad-cc2bff7639df",
+      "name": "Create New Session",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1328,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.state }}",
+                    "rightValue": "START",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "eadb13d8-f63e-47a6-9696-db5cc527e831"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.state }}",
+                    "rightValue": "WAIT_LANGUAGE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "e20f222f-ac8c-40e3-b3d9-b000239694bf"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.state }}",
+                    "rightValue": "MAIN_MENU",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "01cbd667-a997-47fa-aa54-fa134833273d"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.state }}",
+                    "rightValue": "WAIT_MENU_SELECTION",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "a8840778-cf5c-4de2-b6f8-34ded1beb076"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bc84e2f0-5035-4f72-aa99-d0e8ec5d8785",
+      "name": "FSM Controller",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        2032,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "userPhone",
+              "value": "={{ $json.userPhone }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "replyMessage",
+              "value": "Namaste 🙏\n\nWelcome to National Education Policy Information Bot.\n\nPlease select your language / કૃપા કરીને ભાષા પસંદ કરો:\n\n1. English\n2. ગુજરાતી",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "newState",
+              "value": "WAIT_LANGUAGE",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "language",
+              "value": "={{ $json.language }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c4cb40af-f44a-4fca-a9d8-e2f746f96c16",
+      "name": "Handle START State",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2256,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "userPhone",
+              "value": "={{ $json.userPhone }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "language",
+              "value": "={{ $json.userText.toLowerCase().includes('english') || $json.userText === '1' ? 'EN' : ($json.userText.toLowerCase().includes('ગુજરાતી') || $json.userText === '2' ? 'GU' : $json.language) }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "replyMessage",
+              "value": "={{ $json.userText === '1' || $json.userText.toLowerCase().includes('english') ? 'Welcome! Please select an option:\\n\\n1. NEP Overview\\n2. Official Documents\\n3. Help' : ($json.userText === '2' || $json.userText.toLowerCase().includes('ગુજરાતી') ? 'સ્વાગત છે! કૃપા કરીને વિકલ્પ પસંદ કરો:\\n\\n1. NEP ઝાંખી\\n2. સત્તાવાર દસ્તાવેજો\\n3. મદદ' : 'Invalid selection. Please choose 1 or 2.') }}",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "newState",
+              "value": "={{ $json.userText === '1' || $json.userText === '2' || $json.userText.toLowerCase().includes('english') || $json.userText.toLowerCase().includes('ગુજરાતી') ? 'MAIN_MENU' : 'WAIT_LANGUAGE' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2a6388dd-d88e-4af1-b36f-a6f6e38f9471",
+      "name": "Handle WAIT_LANGUAGE",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2256,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "userPhone",
+              "value": "={{ $json.userPhone }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "language",
+              "value": "={{ $json.language }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "replyMessage",
+              "value": "={{ $json.language === 'EN' ? 'Main Menu:\\n\\n1. NEP Overview\\n2. Official Documents\\n3. Help' : 'મુખ્ય મેનુ:\\n\\n1. NEP ઝાંખી\\n2. સત્તાવાર દસ્તાવેજો\\n3. મદદ' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "newState",
+              "value": "WAIT_MENU_SELECTION",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "21dd31a5-4e33-4bc9-82d4-54b7f11285a8",
+      "name": "Handle MAIN_MENU",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2256,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "userPhone",
+              "value": "={{ $json.userPhone }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "language",
+              "value": "={{ $json.language }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "replyMessage",
+              "value": "={{ $json.userText === '1' ? ($json.language === 'EN' ? 'NEP 2020 Overview:\\n\\nThe National Education Policy 2020 is a comprehensive framework for transforming India\\'s education system.' : 'NEP 2020 ઝાંખી:\\n\\nરાષ્ટ્રીય શિક્ષણ નીતિ 2020 ભારતની શિક્ષણ પ્રણાલીને પરિવર્તિત કરવા માટેનું વ્યાપક માળખું છે.') : ($json.userText === '2' ? ($json.language === 'EN' ? 'Official Documents:\\n\\n1. NEP 2020 Full Document\\n2. Implementation Guidelines\\n3. State-wise Reports' : 'સત્તાવાર દસ્તાવેજો:\\n\\n1. NEP 2020 સંપૂર્ણ દસ્તાવેજ\\n2. અમલીકરણ માર્ગદર્શિકા\\n3. રાજ્ય-વાર અહેવાલો') : ($json.userText === '3' ? ($json.language === 'EN' ? 'Help:\\n\\nFor assistance, contact support or visit our website.' : 'મદદ:\\n\\nસહાય માટે, સપોર્ટનો સંપર્ક કરો અથવા અમારી વેબસાઇટની મુલાકાત લો.') : ($json.language === 'EN' ? 'Invalid option. Please select 1, 2, or 3.' : 'અમાન્ય વિકલ્પ. કૃપા કરીને 1, 2, અથવા 3 પસંદ કરો.'))) }}",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "newState",
+              "value": "MAIN_MENU",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b281cea6-890b-484f-a3af-f7d6b1a0cce0",
+      "name": "Handle WAIT_MENU_SELECTION",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2256,
+        656
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "userPhone",
+              "value": "={{ $json.userPhone }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "state",
+              "value": "={{ $json.newState }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "language",
+              "value": "={{ $json.language }}",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "lastMessage",
+              "value": "={{ $json.replyMessage }}",
+              "type": "string"
+            },
+            {
+              "id": "id-5",
+              "name": "replyMessage",
+              "value": "={{ $json.replyMessage }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9eefcdfa-a56c-4610-8255-ebd0b6bc8b37",
+      "name": "Prepare Session Update",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2480,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v25.0/1040430392484619/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer EAAWLZCJzFkmkBQykmTQCZCShuVKFLUBKqn5R4jxqN5BdISlc4VK2ZCLchylK8cKYLWOOFabxZCuAiafh6HeYqI2erKlOf5ZB0MzrIqF9QdIsSXQot2IBCcHmOPSTBp7kTWJnIR6C42inNf2cHfV4l23netxZC3IRU2r0aYZAKZAj86QzJqjhZCleLLPQxsinR5AmGPFK5YzRcZBzQwzW2ZCCDk48ZBpe195G52CYZAeya7JhWDZBfhZAh4rKjtwx1AZBce2qzZBvnIAiDb4tZAAZCTCu1AHZBkAd"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"918780023125\",\n  \"type\": \"text\",\n  \"text\": {\n    \"body\": \"Hello from NEP Bot\"\n  }\n}",
+        "options": {}
+      },
+      "id": "9b5163c7-3629-4bc1-bd7f-95302975100a",
+      "name": "Send WhatsApp Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2864,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{$json[\"query\"][\"hub.challenge\"]}}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "f19fc023-6e96-4c64-8480-9678c4372397",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        3712,
+        1616
+      ]
+    },
+    {
+      "parameters": {
+        "collection": "sessions",
+        "options": {
+          "limit": 1
+        },
+        "query": "{\n  \"waid\": \"={{ $json.userPhone }}\"\n}"
+      },
+      "id": "7e07a96d-d795-4cdf-a11d-684825ad3127",
+      "name": "Get Session from MongoDB",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        912,
+        352
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "C28nVlfWDGNCRrnD",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "whatsapp_sessions",
+        "fields": "={ \"waid\": \"{{ $json.userPhone }}\", \"lang\": null, \"currState\": \"{{ $json.state }}\", \"stack\": [], \"lastMessage\": \"\", \"createdAt\": \"{{ $now.toISO() }}\", \"ttl\": \"{{ $now.plus({ hours: 24 }).toISO() }}\" }",
+        "options": {}
+      },
+      "id": "ac7145c7-dedd-49aa-9601-aa65abc84644",
+      "name": "Insert New Session to MongoDB",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        1584,
+        464
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "C28nVlfWDGNCRrnD",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "collection": "whatsapp_sessions",
+        "updateKey": "waid",
+        "fields": "={ \"waid\": \"{{ $json.userPhone }}\", \"currState\": \"{{ $json.state }}\", \"lang\": \"{{ $json.language }}\", \"lastMessage\": \"{{ $json.lastMessage }}\", \"updatedAt\": \"{{ $now.toISO() }}\" }",
+        "upsert": true,
+        "options": {}
+      },
+      "id": "c888b35d-f676-454e-8f77-3906cd741f57",
+      "name": "Update Session in MongoDB",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        2656,
+        288
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "C28nVlfWDGNCRrnD",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filter out WhatsApp status updates, delivery receipts, and read receipts\n// Only process actual user messages\n\nconst items = $input.all();\nconst filteredItems = [];\n\nfor (const item of items) {\n  const data = item.json;\n  \n  // Check if the webhook payload contains the messages array\n  if (data.body?.entry?.[0]?.changes?.[0]?.value?.messages) {\n    const messages = data.body.entry[0].changes[0].value.messages;\n    \n    // Check if there are messages and if the message type is 'text' or 'interactive'\n    if (messages.length > 0) {\n      const messageType = messages[0].type;\n      \n      if (messageType === 'text' || messageType === 'interactive') {\n        // This is an actual user message, include it\n        filteredItems.push(item);\n      }\n    }\n  }\n  // If no messages array or wrong type, skip (status updates, delivery receipts, etc.)\n}\n\n// Return filtered items or empty array for status updates\nreturn filteredItems;"
+      },
+      "id": "50d38f86-8fd2-460a-9ed5-60f2ec69bfa6",
+      "name": "Validate Event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract and normalize message data from WhatsApp webhook payload\nconst items = $input.all();\nconst normalizedItems = [];\n\nfor (const item of items) {\n  const data = item.json;\n  \n  // Navigate to the messages array in the webhook payload\n  const messages = data.body?.entry?.[0]?.changes?.[0]?.value?.messages;\n  \n  if (messages && messages.length > 0) {\n    const message = messages[0];\n    \n    // Extract phone number (remove non-digits and add +91 prefix)\n    const phone = '+91' + message.from.toString().replace(/\\D/g, '');\n    \n    // Extract message text - handle both text messages and interactive button replies\n    let message_text = '';\n    if (message.type === 'interactive' && message.interactive?.button_reply) {\n      // For button replies, use the button ID as message text\n      message_text = message.interactive.button_reply.id;\n    } else if (message.type === 'text' && message.text?.body) {\n      // For regular text messages\n      message_text = message.text.body;\n    }\n    \n    // Extract message type\n    const message_type = message.type;\n    \n    // Extract timestamp\n    const timestamp = message.timestamp;\n    \n    // Extract message ID\n    const message_id = message.id;\n    \n    // Create normalized object\n    normalizedItems.push({\n      json: {\n        phone: phone,\n        message_text: message_text,\n        message_type: message_type,\n        timestamp: timestamp,\n        message_id: message_id\n      }\n    });\n  }\n}\n\nreturn normalizedItems;"
+      },
+      "id": "a2ca50f1-39bf-4a57-a872-698690cd1e7a",
+      "name": "Extract Message Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "userPhone",
+              "value": "={{ $json.userPhone || $('Extract Message Data').item.json.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "userText",
+              "value": "={{ $json.userText || $('Extract Message Data').item.json.message_text }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "messageType",
+              "value": "={{ $json.messageType || $('Extract Message Data').item.json.message_type }}",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "state",
+              "value": "={{ $json.currState || $json.state || 'START' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-5",
+              "name": "language",
+              "value": "={{ $json.lang || $json.language || null }}",
+              "type": "string"
+            },
+            {
+              "id": "id-6",
+              "name": "lastMessage",
+              "value": "={{ $json.lastMessage || '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f50221a8-ee07-480e-8f59-ee5da90d11ca",
+      "name": "Merge Session Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1808,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "conversation_logs",
+        "fields": "={ \"phone\": \"{{ $json.userPhone }}\", \"message\": \"{{ $json.replyMessage }}\", \"state\": \"{{ $json.state }}\", \"timestamp\": \"{{ $now.toISO() }}\", \"direction\": \"outbound\" }",
+        "options": {}
+      },
+      "id": "ebb5b4c2-a693-4dbf-bbdc-57f6bf307daf",
+      "name": "Log Conversation",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        3104,
+        336
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "C28nVlfWDGNCRrnD",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "id": "8ba305bc-c1b4-4023-b5c8-dfc6cddf9296",
+      "name": "Combine Session and Input",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1328,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "userPhone",
+              "value": "={{ $('Extract Message Data').item.json.phone || '+919999999999' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "replyMessage",
+              "value": "Sorry, something went wrong. Please try again.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4f29ed31-355e-4b1f-a36b-4ac3815967c5",
+      "name": "Prepare Error Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2048,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "error_logs",
+        "fields": "={ \"phone\": \"{{ $('Extract Message Data').item.json.phone }}\", \"error\": \"{{ $json.error }}\", \"timestamp\": \"{{ $now.toISO() }}\", \"context\": \"workflow_error\" }",
+        "options": {}
+      },
+      "id": "a2f2f758-2ca4-44d8-a633-176b74d23384",
+      "name": "Log Error",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        2336,
+        928
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "C28nVlfWDGNCRrnD",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v25.0/1040430392484619/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer EAAWLZCJzFkmkBQ9e21YMW8gZAoRZCBhgJ7kZBZBRSVTnIGgryGyRTJrvZANaZAhOASO9QxodeYW6k2S6ZCCUsXZBZA0twJuCP2dKdeQm2QtNynlfzBVMQlZBAr03UqARFBdei3nY56wwrBaA9OY2jAtCecI2ZCQzKCQVdmWTzLOJtByjA0zpesbeHSzE58RPq6jybTc6uGVZBDqrA1gvNi4QNiEVkEhqAa9odOwDZB3AKZBz3ceAN3h7qsH2G9ZBtTxMpA09NLNqdaEe8DM7h48bKFPz8wUnGgZDZD"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"={{ $json.userPhone }}\",\n  \"type\": \"text\",\n  \"text\": {\n    \"body\": \"={{ $json.replyMessage }}\"\n  }\n}",
+        "options": {}
+      },
+      "id": "252883f8-3dbf-48b7-97fe-6c4d08a860ca",
+      "name": "Send Error Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2592,
+        672
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "86cb21f5-7775-496c-ab40-414dc96d09ed",
+              "leftValue": "={{$json[\"query\"][\"hub.mode\"]}}",
+              "rightValue": "subscribe",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -288,
+        544
+      ],
+      "id": "18eab51e-7f8b-48c5-bb2c-8832d42d94b3",
+      "name": "If"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "name": "First item",
+          "code": 1
+        }
+      },
+      {
+        "json": {
+          "name": "Second item",
+          "code": 2
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Session Exists?": {
+      "main": [
+        [
+          {
+            "node": "Combine Session and Input",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create New Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create New Session": {
+      "main": [
+        [
+          {
+            "node": "Insert New Session to MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FSM Controller": {
+      "main": [
+        [
+          {
+            "node": "Handle START State",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle WAIT_LANGUAGE",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle MAIN_MENU",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle WAIT_MENU_SELECTION",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle START State": {
+      "main": [
+        [
+          {
+            "node": "Prepare Session Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle WAIT_LANGUAGE": {
+      "main": [
+        [
+          {
+            "node": "Prepare Session Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle MAIN_MENU": {
+      "main": [
+        [
+          {
+            "node": "Prepare Session Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle WAIT_MENU_SELECTION": {
+      "main": [
+        [
+          {
+            "node": "Prepare Session Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Session Update": {
+      "main": [
+        [
+          {
+            "node": "Update Session in MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send WhatsApp Message": {
+      "main": [
+        [
+          {
+            "node": "Log Conversation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Session from MongoDB": {
+      "main": [
+        [
+          {
+            "node": "Session Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert New Session to MongoDB": {
+      "main": [
+        [
+          {
+            "node": "Merge Session Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Session in MongoDB": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Event": {
+      "main": [
+        [
+          {
+            "node": "Extract Message Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Message Data": {
+      "main": [
+        [
+          {
+            "node": "Get Session from MongoDB",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Combine Session and Input",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Combine Session and Input": {
+      "main": [
+        [
+          {
+            "node": "Merge Session Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Session Data": {
+      "main": [
+        [
+          {
+            "node": "FSM Controller",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Conversation": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Error Response": {
+      "main": [
+        [
+          {
+            "node": "Log Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Error": {
+      "main": [
+        [
+          {
+            "node": "Send Error Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Error Message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Validate Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "2b279364-645a-4dc1-ab6c-d155a777a83c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4c844a460cd7eb81632037eee568ed255a5c009255d2c6b748302ab408a7fb8b"
+  },
+  "id": "427YyU9e1jmjBtem",
+  "tags": []
+}
